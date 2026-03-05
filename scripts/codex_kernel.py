@@ -26,6 +26,7 @@ class CodexKernel(Kernel):
     _UNAUTHORIZED_MARKER = "unexpected status 401 Unauthorized"
     _LOGIN_COMMAND = "%%login"
     _LOGOUT_COMMAND = "%%logout"
+    _CODE_THEME = "github-light"
     _ITEM_STARTED_COLOR = "\x1b[36m"
     _COLOR_RESET = "\x1b[0m"
 
@@ -33,7 +34,7 @@ class CodexKernel(Kernel):
         super().__init__(**kwargs)
         self._thread_id: str | None = None
         self._show_events = os.environ.get("CODEX_KERNEL_SHOW_EVENTS", "0") == "1"
-        self._markdown_console = Console(force_terminal=True, color_system="auto")
+        self._markdown_console = Console(force_terminal=True, color_system="auto", width=300)
 
     def _build_command(self, code: str) -> list[str]:
         if self._thread_id is None:
@@ -134,7 +135,14 @@ class CodexKernel(Kernel):
 
     def _render_markdown(self, text: str) -> str:
         with self._markdown_console.capture() as capture:
-            self._markdown_console.print(Markdown(text))
+            self._markdown_console.print(
+                Markdown(
+                    text,
+                    code_theme=self._CODE_THEME,
+                    inline_code_theme=self._CODE_THEME,
+                    hyperlinks=False,
+                )
+            )
         return capture.get()
 
     def _run_device_auth_login(self) -> tuple[int, str]:
