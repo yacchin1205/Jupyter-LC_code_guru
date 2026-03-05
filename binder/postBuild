@@ -7,6 +7,11 @@ codex --version
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "${repo_root}/scripts/install_codex_kernel.py"
 
+lc_run_through_release_tag="0.2.0.rc4"
+lc_run_through_release_url="https://github.com/NII-cloud-operation/Jupyter-LC_run_through/releases/download"
+python3 -m pip install --no-cache-dir \
+  "${lc_run_through_release_url}/${lc_run_through_release_tag}/lc_run_through-${lc_run_through_release_tag}.tar.gz"
+
 cat > "${HOME}/.codex_login_hint.sh" <<'EOF'
 if [ -n "${PS1:-}" ] && [ -z "${CODEX_HINT_SHOWN:-}" ]; then
   export CODEX_HINT_SHOWN=1
