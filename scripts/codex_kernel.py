@@ -8,6 +8,8 @@ from typing import Any
 
 from ipykernel.kernelapp import IPKernelApp
 from ipykernel.kernelbase import Kernel
+from rich.console import Console
+from rich.markdown import Markdown
 
 
 class CodexKernel(Kernel):
@@ -31,6 +33,7 @@ class CodexKernel(Kernel):
         super().__init__(**kwargs)
         self._thread_id: str | None = None
         self._show_events = os.environ.get("CODEX_KERNEL_SHOW_EVENTS", "0") == "1"
+        self._markdown_console = Console(force_terminal=True, color_system="auto")
 
     def _build_command(self, code: str) -> list[str]:
         if self._thread_id is None:
@@ -99,10 +102,11 @@ class CodexKernel(Kernel):
             elif event_type == "item.completed":
                 item = event["item"]
                 if item["type"] == "agent_message" and not silent:
+                    markdown_text = self._render_markdown(item["text"])
                     self.send_response(
                         self.iopub_socket,
                         "stream",
-                        {"name": "stdout", "text": f"{item['text']}\n"},
+                        {"name": "stdout", "text": markdown_text},
                     )
             elif event_type == "error":
                 if not silent:
@@ -127,6 +131,11 @@ class CodexKernel(Kernel):
                     {"name": "stdout", "text": f"{stripped}\n"},
                 )
         return (proc.wait(), last_error)
+
+    def _render_markdown(self, text: str) -> str:
+        with self._markdown_console.capture() as capture:
+            self._markdown_console.print(Markdown(text))
+        return capture.get()
 
     def _run_device_auth_login(self) -> tuple[int, str]:
         proc = subprocess.Popen(
