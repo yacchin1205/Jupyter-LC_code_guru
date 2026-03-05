@@ -91,6 +91,13 @@ class CodexKernel(Kernel):
                     )
             elif event_type == "turn.failed":
                 last_error = event["error"]["message"]
+            else:
+                if not silent:
+                    self.send_response(
+                        self.iopub_socket,
+                        "stream",
+                        {"name": "stderr", "text": line},
+                    )
             if self._show_events and not silent:
                 self.send_response(
                     self.iopub_socket,
