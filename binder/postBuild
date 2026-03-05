@@ -4,6 +4,9 @@ set -euo pipefail
 npm install -g @openai/codex
 codex --version
 
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "${repo_root}/scripts/install_codex_kernel.py"
+
 cat > "${HOME}/.codex_login_hint.sh" <<'EOF'
 if [ -n "${PS1:-}" ] && [ -z "${CODEX_HINT_SHOWN:-}" ]; then
   export CODEX_HINT_SHOWN=1

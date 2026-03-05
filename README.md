@@ -33,3 +33,13 @@ python3 scripts/build_catalog.py --org NII-cloud-operation --out-dir catalog --l
 1. Codex が `catalog/repos.jsonl` / `catalog/tree.jsonl` から候補リポジトリを絞る。
 2. 必要なリポジトリだけ `workspace/repos/` に shallow clone する。
 3. 該当箇所を調べて回答する。
+
+## Codex Kernel
+Notebook の Code Cell に Codex への指示だけを書ける実装を用意している。
+
+```bash
+python3 scripts/install_codex_kernel.py
+```
+
+Jupyter で Kernel を `Codex` に切り替え、Code Cell に自然文の指示を書いて実行する。
+コンセプトは `scripts/CODEX_KERNEL_CONCEPT.md` を参照。
