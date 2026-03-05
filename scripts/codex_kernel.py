@@ -21,6 +21,8 @@ class CodexKernel(Kernel):
         "file_extension": ".prompt",
     }
     banner = "Codex Kernel (1 kernel = 1 Codex session)"
+    _UNAUTHORIZED_MARKER = "unexpected status 401 Unauthorized"
+    _LOGIN_COMMAND = "%%login"
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -70,6 +72,25 @@ class CodexKernel(Kernel):
                 rendered.append(stripped)
         return ("\n".join(rendered), last_error, "\n".join(stderr_lines))
 
+    def _run_device_auth_login(self) -> tuple[int, str]:
+        proc = subprocess.Popen(
+            ["codex", "login", "--device-auth"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        login_lines: list[str] = []
+        if proc.stdout is not None:
+            for line in proc.stdout:
+                login_lines.append(line.rstrip("\n"))
+                self.send_response(
+                    self.iopub_socket,
+                    "stream",
+                    {"name": "stdout", "text": line},
+                )
+        returncode = proc.wait()
+        return (returncode, "\n".join(login_lines))
+
     def do_execute(
         self,
         code: str,
@@ -82,6 +103,16 @@ class CodexKernel(Kernel):
         cell_id: str | None = None,
     ) -> dict[str, Any]:
         if not code.strip():
+            return {"status": "ok", "execution_count": self.execution_count, "payload": [], "user_expressions": {}}
+        if code.strip() == self._LOGIN_COMMAND:
+            login_returncode, _ = self._run_device_auth_login()
+            if login_returncode != 0:
+                return {
+                    "status": "error",
+                    "ename": "CodexLoginError",
+                    "evalue": f"codex login exited with status {login_returncode}",
+                    "traceback": [f"Command failed: codex login --device-auth"],
+                }
             return {"status": "ok", "execution_count": self.execution_count, "payload": [], "user_expressions": {}}
 
         cmd = self._build_command(code)
@@ -111,6 +142,12 @@ class CodexKernel(Kernel):
             evalue = f"codex exited with status {proc.returncode}"
             if last_error is not None:
                 evalue = f"{evalue}: {last_error}"
+            if last_error is not None and self._UNAUTHORIZED_MARKER in last_error:
+                login_returncode, _ = self._run_device_auth_login()
+                if login_returncode == 0:
+                    evalue = f"{evalue}\nDevice auth completed. Re-run this cell."
+                else:
+                    evalue = f"{evalue}\nDevice auth failed with status {login_returncode}."
             return {
                 "status": "error",
                 "ename": "CodexExecError",
