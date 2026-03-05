@@ -48,29 +48,56 @@ class CodexKernel(Kernel):
             code,
         ]
 
-    def _collect_stdout_text(self, stdout: str) -> tuple[str, str | None, str]:
-        rendered: list[str] = []
+    def _run_exec_and_stream(self, cmd: list[str], silent: bool) -> tuple[int, str | None]:
         last_error: str | None = None
-        stderr_lines: list[str] = []
-        for line in stdout.splitlines():
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        for line in proc.stdout:
             stripped = line.strip()
             if not stripped:
                 continue
-            event = json.loads(stripped)
+            try:
+                event = json.loads(stripped)
+            except json.JSONDecodeError:
+                if not silent:
+                    self.send_response(
+                        self.iopub_socket,
+                        "stream",
+                        {"name": "stderr", "text": line},
+                    )
+                continue
             event_type = event["type"]
             if event_type == "thread.started":
                 self._thread_id = event["thread_id"]
             elif event_type == "item.completed":
                 item = event["item"]
-                if item["type"] == "agent_message":
-                    rendered.append(item["text"])
+                if item["type"] == "agent_message" and not silent:
+                    self.send_response(
+                        self.iopub_socket,
+                        "stream",
+                        {"name": "stdout", "text": f"{item['text']}\n"},
+                    )
             elif event_type == "error":
-                stderr_lines.append(event["message"])
+                if not silent:
+                    self.send_response(
+                        self.iopub_socket,
+                        "stream",
+                        {"name": "stderr", "text": f"{event['message']}\n"},
+                    )
             elif event_type == "turn.failed":
                 last_error = event["error"]["message"]
-            if self._show_events:
-                rendered.append(stripped)
-        return ("\n".join(rendered), last_error, "\n".join(stderr_lines))
+            if self._show_events and not silent:
+                self.send_response(
+                    self.iopub_socket,
+                    "stream",
+                    {"name": "stdout", "text": f"{stripped}\n"},
+                )
+        return (proc.wait(), last_error)
 
     def _run_device_auth_login(self) -> tuple[int, str]:
         proc = subprocess.Popen(
@@ -80,14 +107,13 @@ class CodexKernel(Kernel):
             text=True,
         )
         login_lines: list[str] = []
-        if proc.stdout is not None:
-            for line in proc.stdout:
-                login_lines.append(line.rstrip("\n"))
-                self.send_response(
-                    self.iopub_socket,
-                    "stream",
-                    {"name": "stdout", "text": line},
-                )
+        for line in proc.stdout:
+            login_lines.append(line.rstrip("\n"))
+            self.send_response(
+                self.iopub_socket,
+                "stream",
+                {"name": "stdout", "text": line},
+            )
         returncode = proc.wait()
         return (returncode, "\n".join(login_lines))
 
@@ -116,30 +142,10 @@ class CodexKernel(Kernel):
             return {"status": "ok", "execution_count": self.execution_count, "payload": [], "user_expressions": {}}
 
         cmd = self._build_command(code)
-        proc = subprocess.run(cmd, check=False, capture_output=True, text=True)
-        stdout_text, last_error, event_stderr = self._collect_stdout_text(proc.stdout)
+        returncode, last_error = self._run_exec_and_stream(cmd, silent)
 
-        if not silent:
-            if stdout_text:
-                self.send_response(
-                    self.iopub_socket,
-                    "stream",
-                    {"name": "stdout", "text": stdout_text},
-                )
-            stderr_parts: list[str] = []
-            if proc.stderr:
-                stderr_parts.append(proc.stderr)
-            if event_stderr:
-                stderr_parts.append(event_stderr)
-            if stderr_parts:
-                self.send_response(
-                    self.iopub_socket,
-                    "stream",
-                    {"name": "stderr", "text": "\n".join(stderr_parts)},
-                )
-
-        if proc.returncode != 0:
-            evalue = f"codex exited with status {proc.returncode}"
+        if returncode != 0:
+            evalue = f"codex exited with status {returncode}"
             if last_error is not None:
                 evalue = f"{evalue}: {last_error}"
             if last_error is not None and self._UNAUTHORIZED_MARKER in last_error:
