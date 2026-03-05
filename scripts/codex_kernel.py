@@ -23,6 +23,8 @@ class CodexKernel(Kernel):
     banner = "Codex Kernel (1 kernel = 1 Codex session)"
     _UNAUTHORIZED_MARKER = "unexpected status 401 Unauthorized"
     _LOGIN_COMMAND = "%%login"
+    _ITEM_STARTED_COLOR = "\x1b[36m"
+    _COLOR_RESET = "\x1b[0m"
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -74,6 +76,25 @@ class CodexKernel(Kernel):
             event_type = event["type"]
             if event_type == "thread.started":
                 self._thread_id = event["thread_id"]
+            elif event_type == "turn.started":
+                pass
+            elif event_type == "turn.completed":
+                pass
+            elif event_type == "item.started":
+                if not silent:
+                    item = event["item"]
+                    item_type = item["type"]
+                    message = f"Starting task: {item_type}"
+                    if item_type == "command_execution":
+                        message = f"{message}: {item['command']}"
+                    self.send_response(
+                        self.iopub_socket,
+                        "stream",
+                        {
+                            "name": "stdout",
+                            "text": f"{self._ITEM_STARTED_COLOR}{message}{self._COLOR_RESET}\n",
+                        },
+                    )
             elif event_type == "item.completed":
                 item = event["item"]
                 if item["type"] == "agent_message" and not silent:
