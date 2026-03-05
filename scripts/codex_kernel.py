@@ -23,6 +23,7 @@ class CodexKernel(Kernel):
     banner = "Codex Kernel (1 kernel = 1 Codex session)"
     _UNAUTHORIZED_MARKER = "unexpected status 401 Unauthorized"
     _LOGIN_COMMAND = "%%login"
+    _LOGOUT_COMMAND = "%%logout"
     _ITEM_STARTED_COLOR = "\x1b[36m"
     _COLOR_RESET = "\x1b[0m"
 
@@ -145,6 +146,24 @@ class CodexKernel(Kernel):
         returncode = proc.wait()
         return (returncode, "\n".join(login_lines))
 
+    def _run_logout(self) -> tuple[int, str]:
+        proc = subprocess.Popen(
+            ["codex", "logout"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        logout_lines: list[str] = []
+        for line in proc.stdout:
+            logout_lines.append(line.rstrip("\n"))
+            self.send_response(
+                self.iopub_socket,
+                "stream",
+                {"name": "stdout", "text": line},
+            )
+        returncode = proc.wait()
+        return (returncode, "\n".join(logout_lines))
+
     def do_execute(
         self,
         code: str,
@@ -166,6 +185,16 @@ class CodexKernel(Kernel):
                     "ename": "CodexLoginError",
                     "evalue": f"codex login exited with status {login_returncode}",
                     "traceback": [f"Command failed: codex login --device-auth"],
+                }
+            return {"status": "ok", "execution_count": self.execution_count, "payload": [], "user_expressions": {}}
+        if code.strip() == self._LOGOUT_COMMAND:
+            logout_returncode, _ = self._run_logout()
+            if logout_returncode != 0:
+                return {
+                    "status": "error",
+                    "ename": "CodexLogoutError",
+                    "evalue": f"codex logout exited with status {logout_returncode}",
+                    "traceback": [f"Command failed: codex logout"],
                 }
             return {"status": "ok", "execution_count": self.execution_count, "payload": [], "user_expressions": {}}
 
