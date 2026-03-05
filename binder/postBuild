@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+npm install -g @openai/codex
+codex --version
+
+cat > "${HOME}/.codex_login_hint.sh" <<'EOF'
+if [ -n "${PS1:-}" ] && [ -z "${CODEX_HINT_SHOWN:-}" ]; then
+  export CODEX_HINT_SHOWN=1
+  echo "[NII-cloud-operation Code Guru] Before using codex, run: codex login --device-auth"
+fi
+EOF
+
+if ! grep -Fq '.codex_login_hint.sh' "${HOME}/.bashrc"; then
+  echo 'source "${HOME}/.codex_login_hint.sh"' >> "${HOME}/.bashrc"
+fi
