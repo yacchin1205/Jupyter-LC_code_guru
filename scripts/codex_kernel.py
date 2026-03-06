@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import subprocess
 from typing import Any
 
@@ -35,12 +36,16 @@ class CodexKernel(Kernel):
         self._thread_id: str | None = None
         self._show_events = os.environ.get("CODEX_KERNEL_SHOW_EVENTS", "0") == "1"
         self._markdown_console = Console(force_terminal=True, color_system="auto", width=300)
+        self._exec_default_args = shlex.split(
+            os.environ.get("CODEX_KERNEL_EXEC_ARGS", "--sandbox workspace-write --search")
+        )
 
     def _build_command(self, code: str) -> list[str]:
         if self._thread_id is None:
             return [
                 "codex",
                 "exec",
+                *self._exec_default_args,
                 "--json",
                 "--skip-git-repo-check",
                 code,
@@ -49,6 +54,7 @@ class CodexKernel(Kernel):
             "codex",
             "exec",
             "resume",
+            *self._exec_default_args,
             "--json",
             "--skip-git-repo-check",
             self._thread_id,
