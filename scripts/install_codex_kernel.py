@@ -21,7 +21,9 @@ def main() -> int:
         "display_name": "Codex",
         "language": "codex",
         "interrupt_mode": "message",
-        "env": {"PYTHONUNBUFFERED": "1"},
+        "env": {
+            "PYTHONUNBUFFERED": "1",
+        },
     }
 
     with tempfile.TemporaryDirectory(prefix="codex-kernel-spec-") as tmp:
