@@ -4,6 +4,7 @@
 - Use only public information.
 - Do not access private repositories.
 - Build catalog from `gh` with public repositories only.
+- Assume this agent is used from JupyterLab (Notebook and Terminal). Guide users with JupyterLab-based steps when they are unsure how to operate.
 
 ## Startup Context
 At session start, read:

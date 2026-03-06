@@ -19,15 +19,22 @@ mybinder.org（または BinderHub サービス）でこのリポジトリを起
 1. Notebook を新規作成し、Kernel を `Codex` に切り替える。
 2. 必要なら最初のセルで `%%login` を実行してログインする。
 3. Code Cell に自然文の指示を書いて実行する。
-4. 実行イメージは [EXAMPLE.ipynb](./EXAMPLE.ipynb) を参照する。
 
-## 前提
+実行イメージは [EXAMPLE.ipynb](./EXAMPLE.ipynb) を参照すること。
+
+## 開発者向け
+### 前提
 - 対象は公開情報のみ。
 - private repository は扱わない。
 - Binder 環境は一時的（セッション終了で消える）。
 
-## 開発者向け（Catalog更新）
-Catalog は事前に生成しておく。
+### 仕組み
+1. Codex が `catalog/repos.jsonl` / `catalog/tree.jsonl` から候補リポジトリを絞る。
+2. 必要なリポジトリだけ `workspace/repos/` に shallow clone する。
+3. 該当箇所を調べて回答する。
+
+### Catalog更新
+Catalog は事前に生成しておく。 (リポジトリ管理者が実施)
 
 ```bash
 python3 scripts/build_catalog.py --org NII-cloud-operation --out-dir catalog --limit 500
@@ -38,12 +45,7 @@ python3 scripts/build_catalog.py --org NII-cloud-operation --out-dir catalog --l
 - `catalog/tree.jsonl`: 軽量ディレクトリ情報
 - `catalog/bootstrap.md`: 要約情報
 
-## 仕組み（概要）
-1. Codex が `catalog/repos.jsonl` / `catalog/tree.jsonl` から候補リポジトリを絞る。
-2. 必要なリポジトリだけ `workspace/repos/` に shallow clone する。
-3. 該当箇所を調べて回答する。
-
-## Codex Kernel
+### Codex Kernel
 Notebook の Code Cell に Codex への指示だけを書ける実装を用意している。
 
 ```bash
