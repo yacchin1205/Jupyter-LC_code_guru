@@ -6,11 +6,11 @@
 - 大量リポジトリでも、必要なものだけ取得して回答できる。
 
 ## 使い方
-下の `Launch Binder` バッジをクリックして環境を起動できる。  
-[![Launch Binder](https://binder.cs.rcos.nii.ac.jp/badge_logo.svg)](https://binder.cs.rcos.nii.ac.jp/v2/gh/yacchin1205/Jupyter-LC_code_guru/HEAD)  
-（[国立情報学研究所 データ解析機能（GakuNin RDM）](https://support.rdm.nii.ac.jp/usermanual/DataAnalysis-01/) を利用可能である必要がある。）
+[![Launch Binder](https://binder.cs.rcos.nii.ac.jp/badge_logo.svg)](https://binder.cs.rcos.nii.ac.jp/v2/gh/yacchin1205/Jupyter-LC_code_guru/HEAD)  をクリックして環境を起動する。
 
-注意: `mybinder.org` の使用は推奨しない（`codex login` で保存されうる機微情報を扱う用途は想定されていない）。  
+> [国立情報学研究所 データ解析機能](https://support.rdm.nii.ac.jp/usermanual/DataAnalysis-01/) を利用可能なアカウントを所有している必要があります。
+> なお、 `mybinder.org` の使用は推奨しなません。（`codex login` で保存されうる機微情報を扱う用途は想定されていないため）。  
+
 起動後は、以下のいずれかの方法で使用できる。
 
 ### A. JupyterLab Terminal で使う
