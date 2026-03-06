@@ -9,4 +9,3 @@ dependencies:
   - ripgrep
   - jq
   - rich
-  - tomlkit
