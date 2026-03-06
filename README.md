@@ -1,5 +1,4 @@
 # NII-cloud-operation Code Guru
-[![Launch Binder](https://binder.cs.rcos.nii.ac.jp/badge_logo.svg)](https://binder.cs.rcos.nii.ac.jp/v2/gh/yacchin1205/Jupyter-LC_code_guru/HEAD)
 
 ## 何ができるか
 - NII-cloud-operation Organization の公開リポジトリについて、Codex に質問できる。
