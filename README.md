@@ -6,11 +6,20 @@
 - 大量リポジトリでも、必要なものだけ取得して回答できる。
 
 ## ユーザー向け使い方（mybinder）
-1. mybinder.org でこのリポジトリを起動する。
-2. JupyterLab で `Terminal` を開く。
-3. Terminal で `codex login --device-auth` を実行してログインする。
-4. Terminal で `codex` を実行する。
-5. 質問する。
+mybinder.org（または BinderHub サービス）でこのリポジトリを起動する。  
+起動後は、以下のいずれかの方法で使用できる。
+
+### A. JupyterLab Terminal で使う
+1. JupyterLab で `Terminal` を開く。
+2. `codex login --device-auth` を実行してログインする。
+3. `codex` を実行する。
+4. 質問する。
+
+### B. Notebook（Codex Kernel）で使う
+1. Notebook を新規作成し、Kernel を `Codex` に切り替える。
+2. 必要なら最初のセルで `%%login` を実行してログインする。
+3. Code Cell に自然文の指示を書いて実行する。
+4. 実行イメージは [EXAMPLE.ipynb](./EXAMPLE.ipynb) を参照する。
 
 ## 前提
 - 対象は公開情報のみ。

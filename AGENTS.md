@@ -17,7 +17,7 @@ At session start, read:
 3. Clone only required repositories into `workspace/repos/` using shallow clone.
 4. Use `readme_api_url` only when README full text is required.
 5. Use `rg` to locate evidence in files.
-6. For network-required operations (for example `git clone`), ask the user to run the command.
+6. For network-required operations (for example `git clone`), create a script file with the required commands and ask the user to run that script.
 
 ## Answer Policy
 1. Every answer must include evidence paths (`repo/path`).
