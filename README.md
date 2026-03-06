@@ -1,12 +1,16 @@
 # NII-cloud-operation Code Guru
-[![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/yacchin1205/Jupyter-LC_code_guru/HEAD)
+[![Launch Binder](https://binder.cs.rcos.nii.ac.jp/badge_logo.svg)](https://binder.cs.rcos.nii.ac.jp/v2/gh/yacchin1205/Jupyter-LC_code_guru/HEAD)
 
 ## 何ができるか
 - NII-cloud-operation Organization の公開リポジトリについて、Codex に質問できる。
 - 大量リポジトリでも、必要なものだけ取得して回答できる。
 
-## ユーザー向け使い方（mybinder）
-mybinder.org（または BinderHub サービス）でこのリポジトリを起動する。  
+## 使い方
+下の `Launch Binder` バッジをクリックして環境を起動できる。  
+[![Launch Binder](https://binder.cs.rcos.nii.ac.jp/badge_logo.svg)](https://binder.cs.rcos.nii.ac.jp/v2/gh/yacchin1205/Jupyter-LC_code_guru/HEAD)  
+（[国立情報学研究所 データ解析機能（GakuNin RDM）](https://support.rdm.nii.ac.jp/usermanual/DataAnalysis-01/) を利用可能である必要がある。）
+
+注意: `mybinder.org` の使用は推奨しない（`codex login` で保存されうる機微情報を扱う用途は想定されていない）。  
 起動後は、以下のいずれかの方法で使用できる。
 
 ### A. JupyterLab Terminal で使う
