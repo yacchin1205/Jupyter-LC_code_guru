@@ -8,7 +8,7 @@
 [![Launch Binder](https://binder.cs.rcos.nii.ac.jp/badge_logo.svg)](https://binder.cs.rcos.nii.ac.jp/v2/gh/yacchin1205/Jupyter-LC_code_guru/HEAD)  をクリックして環境を起動する。
 
 > [国立情報学研究所 データ解析機能](https://support.rdm.nii.ac.jp/usermanual/DataAnalysis-01/) を利用可能なアカウントを所有している必要があります。
-> なお、 `mybinder.org` の使用は推奨しなません。（`codex login` で保存されうる機微情報を扱う用途は想定されていないため）。  
+> なお、 `mybinder.org` の使用は推奨しません。（`codex login` で保存されうる機微情報を扱う用途は想定されていないため）。  
 
 起動後は、以下のいずれかの方法で使用できる。
 
